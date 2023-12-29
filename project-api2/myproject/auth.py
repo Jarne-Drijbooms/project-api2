@@ -1,36 +1,34 @@
-from passlib.context import CryptContext
+import crud
 from jose import JWTError, jwt
 from datetime import datetime, timedelta
+from sqlalchemy.orm import Session
+from passlib.context import CryptContext
 from fastapi.security import OAuth2PasswordBearer
 from fastapi import Depends, HTTPException, status
 
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
-import crud
-from sqlalchemy.orm import Session
-
-SECRET_KEY = "f529635f071fdf8e414d2d9b85110e9dc88acd0ce582fea2b7c90433d757a11b"
+# to get a string like this run:
+# openssl rand -hex 32
+SECRET_KEY = "b287700fa0437c94e5c1d648d3679e4b55cd31b33b6b35318f865bf2f83384de"
 ALGORITHM = "HS256"
-ACCESS_TOKEN_EXPIRE_MINUTES = 30
+ACCESS_TOKEN_EXPIRE_MINUTES = 15
 
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 pwd_context = CryptContext(schemes=["argon2", "bcrypt"], deprecated="auto")
 
 
 def get_password_hash(password):
     return pwd_context.hash(password)
 
-
 def verify_password(plain_password, hashed_password):
     return pwd_context.verify(plain_password, hashed_password)
 
-
-def authenticate_user(db: Session, username: str, password: str):
-    user = crud.get_user_by_email(db, username)
-    if not user:
+def authenticate_speler(db: Session, username: str, password: str):
+    speler = crud.get_speler_by_email(db, username)
+    if not speler:
         return False
-    if not verify_password(password, user.hashed_password):
+    if not verify_password(password, speler.hashed_password):
         return False
-    return user
-
+    return speler
 
 def create_access_token(data: dict):
     to_encode = data.copy()
@@ -38,18 +36,18 @@ def create_access_token(data: dict):
     if expires_delta:
         expire = datetime.utcnow() + expires_delta
     else:
-        # Default to 15 minutes of expiration time if ACCESS_TOKEN_EXPIRE_MINUTES variable is empty
-        expire = datetime.utcnow() + timedelta(minutes=15)
-    # Adding the JWT expiration time case
+        # Default to 20 minutes of expiration time if ACCESS_TOKEN_EXPIRE_MINUTES variable is empty
+        expire = datetime.utcnow() + timedelta(minutes=20)
+    # Adding the JWT
     to_encode.update({"exp": expire})
     encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
     return encoded_jwt
 
 
-def get_current_user(db: Session, token: str = Depends(oauth2_scheme)):
+def get_current_speler(db: Session, token: str = Depends(oauth2_scheme)):
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
-        detail="Could not validate credentials",
+        detail="Couldn't validate the credentials",
         headers={"WWW-Authenticate": "Bearer"},
     )
     try:
@@ -59,14 +57,13 @@ def get_current_user(db: Session, token: str = Depends(oauth2_scheme)):
             raise credentials_exception
     except JWTError:
         raise credentials_exception
-    user = crud.get_user_by_email(db, username)
-    if user is None:
+    speler = crud.get_speler_by_email(db, username)
+    if speler is None:
         raise credentials_exception
-    return user
+    return speler
 
-
-def get_current_active_user(db: Session, token: str = Depends(oauth2_scheme)):
-    current_user = get_current_user(db, token)
-    if not current_user.is_active:
-        raise HTTPException(status_code=400, detail="Inactive user")
-    return current_user
+def get_current_active_speler(db: Session, token: str = Depends(oauth2_scheme)):
+    current_speler = get_current_speler(db, token)
+    if not current_speler.is_active:
+        raise HTTPException(status_code=400, detail="Inactive speler")
+    return current_speler
