@@ -16,10 +16,10 @@ Op mijn front-end heb ik gewerkt met 1 post en 2 gets. Er is een GET om het id v
 
 Link naar frond-end Github Repository:
 
-https://github.com/Jarne-Drijbooms/frontend_herexamen_API
+https://github.com/Jarne-Drijbooms/frontend-project2
 
 ** link naar hosted front-end **
 
-https://herexamenapi.netlify.app/
+https://6592d3340ce0fbd0f9bd9bee--singular-meringue-4e3e1d.netlify.app/
 
 
