@@ -21,5 +21,3 @@ https://github.com/Jarne-Drijbooms/frontend-project2
 ** link naar hosted front-end **
 
 https://6592d3340ce0fbd0f9bd9bee--singular-meringue-4e3e1d.netlify.app/
-
-
