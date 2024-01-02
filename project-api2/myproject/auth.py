@@ -23,7 +23,7 @@ def verify_password(plain_password, hashed_password):
     return pwd_context.verify(plain_password, hashed_password)
 
 def authenticate_speler(db: Session, username: str, password: str):
-    speler = crud.get_speler_by_email(db, username)
+    speler = crud.get_player_by_email(db, username)
     if not speler:
         return False
     if not verify_password(password, speler.hashed_password):
@@ -57,7 +57,7 @@ def get_current_speler(db: Session, token: str = Depends(oauth2_scheme)):
             raise credentials_exception
     except JWTError:
         raise credentials_exception
-    speler = crud.get_speler_by_email(db, username)
+    speler = crud.get_player_by_email(db, username)
     if speler is None:
         raise credentials_exception
     return speler
